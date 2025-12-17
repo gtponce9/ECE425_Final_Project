@@ -50,5 +50,19 @@ https://youtube.com/shorts/l66c7wv6q-M?feature=share
 
 ---
 
+## Pinout Configuration
+The following table shows the pin connections between the **Bosch BME280 sensor** and the **TM4C123 (Tiva C) development board** using **SPI communication**.
+
+| BME280 Pin | Tiva Pin | Function |
+|-----------|----------|----------|
+| VCC | 3.3V | Power |
+| GND | GND | Ground |
+| SCL | PA2 | SPI Clock (SCK) |
+| SDA | PA5 | SPI MOSI |
+| CSB | PA3 | Chip Select (Active Low) |
+| SDO | PA4 | SPI MISO |
+
+> **Note:** The BME280 is configured for SPI mode by driving the CSB pin low.
+
 ## Notes
 - Code is non functional
