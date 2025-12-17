@@ -1,0 +1,147 @@
+/**
+ * @file main.c
+ *
+ * @brief Main source code for the BME280 sensor program.
+ *
+ * This file contains the main entry point for the BME280 sensor program.
+ * It reads temperature, humidity, and pressure data from the BME280 sensor
+ * and displays the results via UART.
+ *
+ * The program performs the following:
+ *  1. Initializes all required peripherals (SysTick, UART, BME280)
+ *  2. Verifies the BME280 sensor is connected and working
+ *  3. Continuously reads sensor data every 2 seconds
+ *  4. Displays temperature (C), pressure (hPa), and humidity (%)
+ *
+ * @note All values are displayed as whole numbers (no decimal places)
+ * @note Assumes system clock of 50 MHz
+ *
+ * @author
+ */
+
+#include "TM4C123GH6PM.h"
+#include "SysTick_Delay.h"
+#include "BME280.h"
+#include "UART0.h"
+
+/**
+ * @brief Main function
+ *
+ * Entry point for the program. Initializes all peripherals and enters
+ * an infinite loop that reads and displays sensor data.
+ *
+ * @return This function never returns (infinite loop)
+ */
+int main(void)
+{
+    // ==================== Initialization ====================
+    
+    // Initialize the SysTick timer for delay functions
+    // This must be done first as other drivers may need delays
+    SysTick_Delay_Init();
+    
+    // Initialize UART0 for serial communication at 115200 baud
+    // This allows us to display sensor data on a serial terminal
+    UART0_Init();
+    
+    // ==================== Startup Messages ====================
+    
+    // Send a startup message to the serial terminal
+    UART0_Output_String("BME280 Sensor Initialization...");
+    UART0_Output_Newline();
+    
+    // ==================== BME280 Initialization ====================
+    
+    // Initialize the BME280 sensor
+    // This function returns 1 on success, 0 on failure
+    if(BME280_Init())
+    {
+        // Sensor initialized successfully
+        UART0_Output_String("BME280 initialized successfully!");
+        UART0_Output_Newline();
+        
+        // Read and display the chip ID for verification
+        // The BME280 chip ID should be 0x60
+        uint8_t chip_id = BME280_Get_Chip_ID();
+        UART0_Output_String("Chip ID: 0x");
+        UART0_Output_Unsigned_Hexadecimal(chip_id);
+        UART0_Output_Newline();
+        UART0_Output_Newline();  // Extra line for formatting
+    }
+    else
+    {
+        // Sensor initialization failed
+        UART0_Output_String("ERROR: BME280 initialization failed!");
+        UART0_Output_Newline();
+        UART0_Output_String("Check wiring and try again.");
+        UART0_Output_Newline();
+        UART0_Output_String("Connections should be:");
+        UART0_Output_Newline();
+        UART0_Output_String("  PA2 -> SCK (Clock)");
+        UART0_Output_Newline();
+        UART0_Output_String("  PA3 -> CS (Chip Select)");
+        UART0_Output_Newline();
+        UART0_Output_String("  PA4 -> MISO (SDO)");
+        UART0_Output_Newline();
+        UART0_Output_String("  PA5 -> MOSI (SDI)");
+        UART0_Output_Newline();
+        UART0_Output_String("  VCC -> 3.3V");
+        UART0_Output_Newline();
+        UART0_Output_String("  GND -> Ground");
+        UART0_Output_Newline();
+        
+        // Halt execution - infinite loop with no further action
+        while(1);
+    }
+    
+    // ==================== Main Loop ====================
+    
+    // Infinite loop to continuously read and display sensor data
+    while(1)
+    {
+        // Create a structure to hold the sensor data
+        BME280_Data sensor_data;
+        
+        // Read all sensor data (temperature, pressure, humidity)
+        // This function reads all 8 data registers and applies
+        // the compensation algorithms to get accurate values
+        if(BME280_Read_Data(&sensor_data))
+        {
+            // ==================== Display Temperature ====================
+            // Temperature is in whole degrees Celsius
+            UART0_Output_String("Temperature: ");
+            UART0_Output_Unsigned_Decimal(sensor_data.temperature);
+            UART0_Output_String(" C");
+            UART0_Output_Newline();
+            
+            // ==================== Display Pressure ====================
+            // Pressure is in hectopascals (hPa), also known as millibars (mbar)
+            // Standard atmospheric pressure at sea level is about 1013 hPa
+            UART0_Output_String("Pressure:    ");
+            UART0_Output_Unsigned_Decimal(sensor_data.pressure);
+            UART0_Output_String(" hPa");
+            UART0_Output_Newline();
+            
+            // ==================== Display Humidity ====================
+            // Humidity is in percent relative humidity (% RH)
+            // Range is 0-100%
+            UART0_Output_String("Humidity:    ");
+            UART0_Output_Unsigned_Decimal(sensor_data.humidity);
+            UART0_Output_String(" %");
+            UART0_Output_Newline();
+            
+            // Add a blank line for readability between readings
+            UART0_Output_Newline();
+        }
+        
+        // ==================== Delay Between Readings ====================
+        // Wait 2 seconds (2000 milliseconds) before taking the next reading
+        // This gives you time to read the values and prevents flooding
+        // the serial terminal with data
+        SysTick_Delay1ms(2000);
+    }
+    
+    // This line is never reached due to the infinite loop
+    // It's here to satisfy the compiler's requirement for a return statement
+    return 0;
+}
