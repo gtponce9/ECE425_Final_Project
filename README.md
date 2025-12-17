@@ -13,12 +13,11 @@ The following block diagram illustrates the system architecture and signal flow 
 
 ![Block Diagram](BME_Layout.png)
 
-> Ensure `BME_Layout.png` is placed in the root of the repository or update the path if it is stored in a subfolder.
 
 ---
 
 ## Link
-- GitHub Repository: https://github.com/USERNAME/REPOSITORY_NAME
+https://youtube.com/shorts/l66c7wv6q-M?feature=share
 
 ---
 
@@ -36,7 +35,7 @@ The following block diagram illustrates the system architecture and signal flow 
 - **Function:**  
   Serves as the main controller for the system.
 - **Role in System:**  
-  Initializes the BME280 sensor, reads sensor data, processes measurements, and handles communication with a host PC over USB/UART.
+  Initializes the BME280 sensor, reads sensor data, processes measurements, and handles communication with a host PC over SPI.
 
 ---
 
@@ -52,5 +51,4 @@ The following block diagram illustrates the system architecture and signal flow 
 ---
 
 ## Notes
-- The project is **incomplete** and requires additional debugging to achieve full functionality.
-- Future improvements include correcting sensor communication issues and validating measurement accuracy.
+- Code is non functional
